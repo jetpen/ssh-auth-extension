@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SSH Auth Extension</title>
+  <style>
+    body {
+      width: 350px;
+      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .header {
+      text-align: center;
+      border-bottom: 1px solid #e0e0e0;
+      padding-bottom: 10px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 18px;
+      color: #333;
+    }
+
+    .status {
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .status.success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .status.error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .status.warning {
+      background-color: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeaa7;
+    }
+
+    .config-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    label {
+      font-weight: 500;
+      font-size: 14px;
+      color: #555;
+    }
+
+    input[type="text"], input[type="password"] {
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    button {
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn-primary {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: #0056b3;
+    }
+
+    .btn-secondary {
+      background-color: #6c757d;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background-color: #545b62;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>SSH Auth Extension</h1>
+    </div>
+
+    <div id="status" class="status hidden"></div>
+
+    <div class="config-section">
+      <div class="form-group">
+        <label for="keyPath">SSH Private Key Path:</label>
+        <input type="text" id="keyPath" placeholder="e.g., C:\Users\user\.ssh\id_rsa">
+      </div>
+
+      <div class="form-group">
+        <label for="passphrase">Key Passphrase (optional):</label>
+        <input type="password" id="passphrase" placeholder="Leave empty if no passphrase">
+      </div>
+
+      <button id="configureBtn" class="btn-primary">Configure Key</button>
+      <button id="statusBtn" class="btn-secondary">Check Status</button>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
