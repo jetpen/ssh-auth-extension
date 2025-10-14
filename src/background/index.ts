@@ -81,7 +81,7 @@ class BackgroundService {
           break;
 
         case 'CONFIGURE_KEY':
-          await this.keyManager.configureKey(message.keyPath, message.passphrase);
+          await this.keyManager.configureKey(message.keyContent, message.passphrase, message.keyFileName);
           sendResponse({ success: true });
           break;
 

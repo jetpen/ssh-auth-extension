@@ -3,10 +3,10 @@
 import { Logger } from './logger';
 
 export interface SSHKeyConfig {
-  keyPath: string;
+  keyFileName: string;
   passphrase?: string;
   publicKey?: string;
-  privateKey?: string;
+  privateKey: string;
 }
 
 export class KeyManager {
@@ -32,26 +32,20 @@ export class KeyManager {
     }
   }
 
-  async configureKey(keyPath: string, passphrase?: string): Promise<void> {
-    this.logger.info('Configuring SSH key:', keyPath);
-
-    // Validate key path exists and is readable
-    const keyData = await this.readKeyFile(keyPath);
-
-    if (!keyData) {
-      throw new Error('Unable to read SSH key file');
-    }
+  async configureKey(keyContent: string, passphrase?: string, keyFileName?: string): Promise<void> {
+    this.logger.info('Configuring SSH key from file:', keyFileName || 'unknown');
 
     // Basic validation of key format
-    if (!this.isValidSSHKey(keyData)) {
+    if (!this.isValidSSHKey(keyContent)) {
       throw new Error('Invalid SSH key format');
     }
 
-    // Store configuration (without storing private key content for security)
+    // Store configuration with private key content
     this.config = {
-      keyPath,
+      keyFileName: keyFileName || 'unknown',
       passphrase,
-      publicKey: await this.extractPublicKey(keyData)
+      publicKey: await this.extractPublicKey(keyContent),
+      privateKey: keyContent
     };
 
     // Save to storage
@@ -75,9 +69,8 @@ export class KeyManager {
       return null;
     }
 
-    // Read private key from file
-    const keyData = await this.readKeyFile(this.config.keyPath);
-    return keyData;
+    // Return stored private key content
+    return this.config.privateKey;
   }
 
   private async readKeyFile(filePath: string): Promise<string | null> {

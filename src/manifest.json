@@ -7,7 +7,8 @@
     "storage",
     "activeTab",
     "webRequest",
-    "webRequestBlocking"
+    "webRequestBlocking",
+    "file:///*"
   ],
   "host_permissions": [
     "http://*/*",

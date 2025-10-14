@@ -35,27 +35,31 @@ class PopupUI {
   }
 
   private async configureKey(): Promise<void> {
-    const keyPath = this.keyPathInput.value.trim();
+    const fileInput = this.keyPathInput.files?.[0];
     const passphrase = this.passphraseInput.value;
 
-    if (!keyPath) {
-      this.showStatus('Please enter a valid SSH key path', 'error');
+    if (!fileInput) {
+      this.showStatus('Please select an SSH private key file', 'error');
       return;
     }
 
     try {
       this.setLoading(true);
 
+      // Read the file content
+      const keyContent = await this.readFileContent(fileInput);
+
       const response = await this.sendMessage({
         type: 'CONFIGURE_KEY',
-        keyPath,
+        keyContent,
+        keyFileName: fileInput.name,
         passphrase: passphrase || undefined
       });
 
       if (response.success) {
         this.showStatus('SSH key configured successfully', 'success');
-        // Save configuration locally
-        await this.saveConfiguration(keyPath, !!passphrase);
+        // Save configuration locally (store filename for UI purposes)
+        await this.saveConfiguration(fileInput.name, !!passphrase);
       } else {
         this.showStatus(`Configuration failed: ${response.error}`, 'error');
       }
@@ -142,6 +146,15 @@ class PopupUI {
       this.configureBtn.textContent = 'Configure Key';
       this.statusBtn.textContent = 'Check Status';
     }
+  }
+
+  private readFileContent(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsText(file);
+    });
   }
 
   private sendMessage(message: any): Promise<any> {
