@@ -35,6 +35,11 @@ ssh-auth-extension/
 │   │   └── index.ts          # Background service worker
 │   ├── content/
 │   │   └── index.ts          # Content scripts for web pages
+│   ├── icons/
+│   │   ├── icon16.svg        # Extension icon (16×16)
+│   │   ├── icon32.svg        # Extension icon (32×32)
+│   │   ├── icon48.svg        # Extension icon (48×48)
+│   │   └── icon128.svg       # Extension icon (128×128)
 │   ├── popup/
 │   │   ├── index.ts          # Popup UI logic
 │   │   └── popup.html        # Extension popup interface

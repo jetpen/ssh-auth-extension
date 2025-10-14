@@ -57,6 +57,10 @@ module.exports = (env, argv) => {
           {
             from: 'src/popup/popup.html',
             to: 'popup.html'
+          },
+          {
+            from: 'src/icons',
+            to: 'icons'
           }
         ]
       })

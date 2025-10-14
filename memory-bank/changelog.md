@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2025-10-13
+
+### Added
+- **Icon Assets**: Created and integrated extension icons for all required sizes
+  - **SVG Icons**: Designed simple key-themed icons in SVG format (16x16, 32x32, 48x48, 128x128)
+  - **Manifest Updates**: Updated manifest.json to reference SVG icons instead of missing PNG files
+  - **Build Configuration**: Modified webpack.config.js to copy icons directory to dist/
+  - **Extension Completeness**: Extension now has all required assets for browser installation
+
+### Fixed
+- **Missing Icons Issue**: Resolved missing icon references in manifest.json that prevented proper extension loading
+
+### Changed
+- **Icon Format**: Switched from PNG to SVG icons for better scalability and maintenance
+
 ## [Unreleased] - 2025-09-30
 
 ### Added
