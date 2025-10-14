@@ -32,6 +32,8 @@ class ContentScript {
 
   private setupDOMObservation(): void {
     // Observe DOM changes to detect authentication challenges
+    const target = document.body || document.documentElement;
+
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (mutation.type === 'childList') {
@@ -42,13 +44,15 @@ class ContentScript {
       });
     });
 
-    observer.observe(document.body, {
+    observer.observe(target, {
       childList: true,
       subtree: true
     });
 
-    // Also check the initial DOM
-    this.checkForAuthChallenge(document.body);
+    // Also check the initial DOM if body exists
+    if (document.body) {
+      this.checkForAuthChallenge(document.body);
+    }
 
     this.logger.debug('DOM observation setup complete');
   }
