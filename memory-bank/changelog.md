@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2025-10-15
+
+### Added
+- **Extension-Webapp Communication Architecture**: Complete redesign of extension-webapp interaction
+  - **Content Script API Injection**: Moved all window.chrome communication functions from webapp to extension content script
+  - **SSHAuthExtension API**: Created clean abstraction layer for webapp-extension communication
+  - **Message Handling Centralization**: Extension content script now handles all webapp-to-extension messaging
+  - **Cross-Context Security**: Established secure boundaries between webapp and extension contexts
+  - **Webapp Simplification**: Removed direct chrome.runtime dependencies from webapp code
+
+### Changed
+- **Architecture Pattern**: Shifted from webapp-direct-extension communication to content-script-mediated communication
+- **Security Model**: Enhanced security by centralizing extension API access in content script context
+
 ## [Unreleased] - 2025-10-13
 
 ### Added

@@ -14,7 +14,7 @@ export class ChallengeDetector {
 
   // Patterns that indicate SSH authentication challenges
   private challengePatterns = [
-    /ssh.*challenge/i,
+    /challenge/i,
     /authentication.*challenge/i,
     /ssh.*auth/i,
     /publickey.*challenge/i,

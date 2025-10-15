@@ -26,6 +26,13 @@
 - **Build System Integration**: Updated webpack configuration to copy icons to dist/ directory
 - **Manifest Updates**: Fixed manifest.json icon references to use actual SVG files
 
+### Extension-Webapp Communication Architecture Complete
+- **Content Script API Injection**: Moved all window.chrome communication functions from webapp to extension content script
+- **Extension API Abstraction**: Created SSHAuthExtension API object injected into webapp window for clean separation
+- **Message Handling Centralization**: Extension content script now handles all webapp-to-extension communication
+- **Webapp Simplification**: Removed direct chrome.runtime usage from webapp, replaced with extension-provided API
+- **Cross-Context Communication**: Established secure message passing between webapp and extension contexts
+
 ### Skeleton Implementation Complete
 - **Full Project Structure**: Complete src/ directory with background, content, popup, and shared components
 - **Build System**: Webpack configuration for extension bundling and development workflow

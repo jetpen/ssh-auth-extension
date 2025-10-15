@@ -37,18 +37,18 @@ class BackgroundService {
     // Monitor network requests for SSH authentication challenges
     chrome.webRequest.onBeforeRequest.addListener(
       (details) => {
-        return this.authCoordinator.handleNetworkRequest(details);
+        this.authCoordinator.handleNetworkRequest(details);
       },
       { urls: ['<all_urls>'] },
-      ['blocking', 'requestBody']
+      ['requestBody']
     );
 
     chrome.webRequest.onBeforeSendHeaders.addListener(
       (details) => {
-        return this.authCoordinator.handleRequestHeaders(details);
+        this.authCoordinator.handleRequestHeaders(details);
       },
       { urls: ['<all_urls>'] },
-      ['blocking', 'requestHeaders']
+      ['requestHeaders']
     );
 
     this.logger.debug('Network monitoring setup complete');
@@ -88,6 +88,10 @@ class BackgroundService {
         case 'AUTH_CHALLENGE':
           const response = await this.authCoordinator.handleAuthChallenge(message.challenge);
           sendResponse({ success: true, response });
+          break;
+
+        case 'PING':
+          sendResponse({ success: true, status: 'alive' });
           break;
 
         default:

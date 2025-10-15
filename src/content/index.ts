@@ -27,6 +27,9 @@ class ContentScript {
     // Listen for messages from background script
     this.setupMessageHandling();
 
+    // Set up extension API injection for webapp compatibility
+    this.setupExtensionAPIInjection();
+
     this.logger.info('Content script initialized successfully');
   }
 
@@ -168,14 +171,129 @@ class ContentScript {
     }
   }
 
+  private setupExtensionAPIInjection(): void {
+    // Inject extension API functions into window for webapp compatibility
+    if (!(window as any).SSHAuthExtension) {
+      (window as any).SSHAuthExtension = {
+        // Function to check if extension is available
+        checkAvailability: (callback: (available: boolean) => void) => {
+          chrome.runtime.sendMessage({ type: 'PING' }, (response) => {
+            callback(response && response.success);
+          });
+        },
+
+        // Function to send messages to extension
+        sendMessage: (message: any, callback?: (response: any) => void) => {
+          chrome.runtime.sendMessage(message, callback);
+        },
+
+        // Function to listen for messages from extension
+        onMessage: (callback: (message: any) => void) => {
+          const listener = (
+            message: any,
+            sender: chrome.runtime.MessageSender,
+            sendResponse: (response?: any) => void
+          ) => {
+            // Handle webapp-specific messages
+            if (message.type && ['AUTH_SUCCESS', 'AUTH_FAILED', 'CHALLENGE_READY'].includes(message.type)) {
+              callback(message);
+            }
+            // Always respond to keep the message channel open
+            sendResponse();
+          };
+          chrome.runtime.onMessage.addListener(listener);
+          // Store listener for potential cleanup
+          (window as any).SSHAuthExtension._listener = listener;
+        },
+
+        // Function to check extension support
+        isSupported: () => {
+          return true; // Since we're running as content script, extension is supported
+        }
+      };
+    }
+
+    this.logger.debug('Extension API injection setup complete');
+  }
+
+  private handleWebappMessage(
+    message: any,
+    sender: chrome.runtime.MessageSender,
+    sendResponse: (response?: any) => void
+  ): void {
+    // Handle messages from background script that are for webapp consumption
+    switch (message.type) {
+      case 'PING':
+        this.logger.info('PING message detected');
+        sendResponse({ success: true, status: 'alive' });
+        break;
+
+      case 'AUTH_SUCCESS':
+        this.showToast('Authentication successful!', 'success');
+        if (message.redirect) {
+          window.location.href = message.redirect;
+        }
+        break;
+
+      case 'AUTH_FAILED':
+        this.showToast('Authentication failed', 'error');
+        break;
+
+      case 'CHALLENGE_READY':
+        this.showToast('Challenge ready for extension', 'info');
+        break;
+
+      default:
+        this.logger.warn('Unknown message type:', message.type);
+        sendResponse({ success: false, error: 'Unknown message type' });
+    }
+  }
+
+  private showToast(message: string, type: string = 'info'): void {
+    // Remove existing toasts
+    const existingToasts = document.querySelectorAll('.toast');
+    existingToasts.forEach(toast => toast.remove());
+
+    // Create new toast
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+
+    // Style the toast
+    Object.assign(toast.style, {
+      position: 'fixed',
+      top: '20px',
+      right: '20px',
+      background: type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8',
+      color: 'white',
+      padding: '12px 20px',
+      borderRadius: '5px',
+      boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
+      zIndex: '10000',
+      fontWeight: '500',
+      maxWidth: '300px',
+      wordWrap: 'break-word'
+    });
+
+    document.body.appendChild(toast);
+
+    // Auto-remove after 3 seconds
+    setTimeout(() => {
+      if (toast.parentNode) {
+        toast.parentNode.removeChild(toast);
+      }
+    }, 3000);
+  }
+
   private handleMessage(
     message: any,
     sender: chrome.runtime.MessageSender,
     sendResponse: (response?: any) => void
   ): void {
-    // Handle messages from background script
+    // Handle internal extension messages (not for webapp)
     switch (message.type) {
       case 'PING':
+        this.logger.info('PING message detected');
         sendResponse({ success: true, status: 'alive' });
         break;
 

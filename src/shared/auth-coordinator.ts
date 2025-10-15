@@ -26,21 +26,21 @@ export class AuthCoordinator {
     this.keyManager = keyManager;
   }
 
-  handleNetworkRequest(details: any): any {
-    // Intercept network requests to detect SSH auth challenges
+  handleNetworkRequest(details: any): void {
+    // Observe network requests to detect SSH auth challenges
     // This would analyze request/response headers and body for auth challenges
-    this.logger.debug('Handling network request:', details.url);
+    this.logger.debug('Observing network request:', details.url);
 
     // Placeholder - would need to implement challenge detection
-    return {};
+    // Note: Cannot modify request in async mode
   }
 
-  handleRequestHeaders(details: any): any {
-    // Handle request headers for authentication
-    this.logger.debug('Handling request headers:', details.url);
+  handleRequestHeaders(details: any): void {
+    // Observe request headers for authentication
+    this.logger.debug('Observing request headers:', details.url);
 
-    // Placeholder - would need to implement header-based auth
-    return {};
+    // Placeholder - would need to implement header-based auth observation
+    // Note: Cannot modify headers in async mode
   }
 
   async handleAuthChallenge(challenge: AuthChallenge): Promise<AuthResponse | null> {

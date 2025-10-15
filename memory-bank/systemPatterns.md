@@ -15,6 +15,10 @@
 │ • Coordinates   │    │ • Injects       │    │                 │
 │   auth flow     │    │   responses     │    │                 │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
+         ▲                       ▲
+         │                       │
+         └──── SSH Auth Webapp ──┘
+              (API injection)
 ```
 
 ### Component Responsibilities
@@ -29,6 +33,8 @@
 - **Challenge Detection**: Identifies SSH authentication challenges in web pages
 - **Response Injection**: Modifies DOM/forms to include decrypted responses
 - **Event Handling**: Listens for authentication-related page events
+- **API Injection**: Provides SSHAuthExtension API to webapps for secure extension communication
+- **Message Mediation**: Handles all webapp-to-extension message passing
 - **Security Isolation**: Operates within page context without direct key access
 
 #### Popup Interface
@@ -80,8 +86,10 @@ Challenge Received → Key Retrieval → Decryption → Response Injection → S
 
 ### Communication Patterns
 - **Message Passing**: Chrome extension messaging API for inter-component comms
+- **API Injection**: Content script injects SSHAuthExtension API into webapp window
 - **Event Broadcasting**: State changes broadcast to interested components
 - **Request-Response**: Synchronous operations for immediate results
+- **Cross-Context Mediation**: Content script mediates communication between webapp and extension
 
 ## Critical Implementation Paths
 

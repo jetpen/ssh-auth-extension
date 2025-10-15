@@ -86,7 +86,12 @@ ssh-auth-extension/
 ### Runtime Dependencies
 - **Chrome Extension APIs**: Built-in browser APIs
 - **Web Crypto API**: For supported cryptographic operations
-- **DOM APIs**: For content script interactions
+- **DOM APIs**: For content script interactions and API injection
+
+### Extension-Webapp Integration
+- **API Injection**: Content scripts inject SSHAuthExtension API into webapp window object
+- **Message Mediation**: Content scripts handle all communication between webapps and extension
+- **Security Boundaries**: Maintains isolation between extension and webapp contexts
 
 ### Development Dependencies
 - **TypeScript**: ^4.9.0 - Type checking and compilation
