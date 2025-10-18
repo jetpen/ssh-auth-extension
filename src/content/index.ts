@@ -30,6 +30,20 @@ class ContentScript {
     // Set up extension API injection for webapp compatibility
     this.setupExtensionAPIInjection();
 
+    // Wake the background service worker (MV3 is event-driven)
+    try {
+      chrome.runtime.sendMessage({ type: 'PING' }, () => {
+        const err = chrome.runtime.lastError;
+        if (err) {
+          this.logger.warn('Background ping error:', err.message);
+        } else {
+          this.logger.debug('Background service pinged');
+        }
+      });
+    } catch (e) {
+      this.logger.warn('Failed to ping background:', e);
+    }
+
     this.logger.info('Content script initialized successfully');
   }
 
@@ -42,6 +56,13 @@ class ContentScript {
         if (mutation.type === 'childList') {
           mutation.addedNodes.forEach((node) => {
             this.checkForAuthChallenge(node);
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              const el = node as Element;
+              const forms = el.querySelectorAll('form');
+              forms.forEach((form) => {
+                this.checkForAuthChallenge(form);
+              });
+            }
           });
         }
       });
@@ -54,7 +75,15 @@ class ContentScript {
 
     // Also check the initial DOM if body exists
     if (document.body) {
+      // Check the entire document body
       this.checkForAuthChallenge(document.body);
+
+      // Find all form elements and check each one for auth challenges
+      const forms = document.body.querySelectorAll('form');
+      forms.forEach((form) => {
+        this.logger.info('Checking form: ', form.name);
+        this.checkForAuthChallenge(form);
+      });
     }
 
     this.logger.debug('DOM observation setup complete');
@@ -63,11 +92,16 @@ class ContentScript {
   private setupFormInterception(): void {
     // Intercept form submissions that might be authentication forms
     document.addEventListener('submit', (event) => {
-      const form = event.target as HTMLFormElement;
-      if (this.isAuthForm(form)) {
+      const targetEl = event.target as Element | null;
+      const form =
+        (targetEl && typeof (targetEl as any).closest === 'function'
+          ? (targetEl as Element).closest('form') as HTMLFormElement | null
+          : null) || (event.target as HTMLFormElement);
+
+      if (form && this.isAuthForm(form)) {
         this.handleAuthFormSubmission(form, event);
       }
-    });
+    }, true);
 
     this.logger.debug('Form interception setup complete');
   }
@@ -155,12 +189,19 @@ class ContentScript {
   private injectAuthResponse(target: Element | HTMLFormElement, response: any): void {
     // Inject the decrypted authentication response into the page
     if (target instanceof HTMLFormElement) {
-      // For forms, add hidden input with response
-      const responseInput = document.createElement('input');
-      responseInput.type = 'hidden';
-      responseInput.name = 'ssh_auth_response';
+      // For forms, try to find existing ssh_auth_response input first
+      let responseInput = target.querySelector('input[name="ssh_auth_response"]') as HTMLInputElement;
+
+      if (!responseInput) {
+        // Create the element if it cannot be found
+        responseInput = document.createElement('input');
+        responseInput.type = 'hidden';
+        responseInput.name = 'ssh_auth_response';
+        target.appendChild(responseInput);
+      }
+
+      // Set the response value
       responseInput.value = response.signature;
-      target.appendChild(responseInput);
 
       // Submit the form
       target.submit();
@@ -177,6 +218,7 @@ class ContentScript {
       (window as any).SSHAuthExtension = {
         // Function to check if extension is available
         checkAvailability: (callback: (available: boolean) => void) => {
+          this.logger.info('ContentScript: Sending PING');
           chrome.runtime.sendMessage({ type: 'PING' }, (response) => {
             callback(response && response.success);
           });
